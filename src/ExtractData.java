@@ -20,13 +20,13 @@ import java.util.StringTokenizer;
  */
 public class ExtractData 
 {
-    public Map<String,String> BuildVocabulary(String folderPath)
+    public Data BuildVocabulary(String folderPath)
     {
         File folder=new File(folderPath);
         File [] files=folder.listFiles();
         Map<String,String> vocabulary = new HashMap<String,String>();
-        
-        
+        Data data =new Data();
+        data.NumberOfFiles=files.length-1;
         for(int i=0;i<files.length;i++)
         {
             if(files[i].getName().equals(".DS_Store"))
@@ -68,18 +68,19 @@ public class ExtractData
             Map.Entry entry=(Map.Entry) iterator.next();
                 System.out.println(entry.getKey()+"\t"+entry.getValue());
           }*/
-          return vocabulary;
+          data.vocabulary=vocabulary;
+          return data;
     }
     
     public static void main(String args[])
     {
-        ExtractData data=new ExtractData();
+        ExtractData dataExtraction=new ExtractData();
         String spamFolderPath="/Users/bhumikasaivamani/spam";
         String hamFolderPath="/Users/bhumikasaivamani/ham";
-        Map<String,String> spamVocabulary = new HashMap<String,String>();
-        Map<String,String> hamVocabulary = new HashMap<String,String>();
-        spamVocabulary=data.BuildVocabulary(spamFolderPath);
-        hamVocabulary=data.BuildVocabulary(hamFolderPath);
+        Data spamData=new Data();
+        Data hamData=new Data();
+        spamData=dataExtraction.BuildVocabulary(spamFolderPath);
+        hamData=dataExtraction.BuildVocabulary(hamFolderPath);
         System.out.println("");
     }
     
