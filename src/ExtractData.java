@@ -41,7 +41,10 @@ public class ExtractData
                     StringTokenizer token=new StringTokenizer(line," ");
                     while(token.hasMoreTokens())
                     {
-                       String word=token.nextToken();
+                       String word=token.nextToken().toLowerCase().trim();
+                       word=word.replaceAll("[^a-zA-Z]+","");
+                       if(word.length()==0)
+                        continue;
                        if(vocabulary.containsKey(word))
                        {
                            String value=vocabulary.get(word);
@@ -71,6 +74,7 @@ public class ExtractData
           data.vocabulary=vocabulary;
           return data;
     }
+    
     
     public static void main(String args[])
     {

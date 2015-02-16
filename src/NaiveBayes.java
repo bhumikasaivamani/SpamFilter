@@ -126,7 +126,7 @@ public class NaiveBayes
             {
                 FileReader fileReader=new FileReader(files[i].getAbsolutePath());
                 BufferedReader br=new BufferedReader(fileReader);
-                String line=br.readLine();
+                String line=br.readLine().toLowerCase().trim();
                 concatenatedString=concatenatedString.concat(line);
             }
             catch(Exception e)
@@ -151,7 +151,10 @@ public class NaiveBayes
                 StringTokenizer token=new StringTokenizer(line," ");
                 while(token.hasMoreTokens())
                 {
-                   String word=token.nextToken();
+                   String word=token.nextToken().toLowerCase().trim();
+                   word=word.replaceAll("[^a-zA-Z]+","");
+                   if(word.length()==0)
+                       continue;
                    if(extractedTokens.containsKey(word))
                    {
                        String value=extractedTokens.get(word);
