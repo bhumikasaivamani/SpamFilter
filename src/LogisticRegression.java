@@ -32,7 +32,7 @@ public class LogisticRegression
     ArrayList<DocumentVocabulary> hamDocuments;
     int w0=1;
     double learningRate;
-    int lambda=1;
+    double lambda;
     
     public LogisticRegression()
     {
@@ -43,7 +43,8 @@ public class LogisticRegression
         VocabularyHamProbabilities=new HashMap<>();
         spamDocuments=new ArrayList<>();
         hamDocuments=new ArrayList<>();
-        learningRate=0.001;
+        learningRate=0.01;
+        lambda=0.7;
     }
     
     public ArrayList<DocumentVocabulary> ConstructDocumentVocabulary(String path)
@@ -73,7 +74,7 @@ public class LogisticRegression
                        if(docV.containsKey(word))
                        {
                            int value=docV.get(word);
-                           int newValue=value=1;
+                           int newValue=value+1;
                            docV.replace(word, newValue);
                        }
                        else
@@ -123,7 +124,7 @@ public class LogisticRegression
                        if(Vocabulary.containsKey(word))
                        {
                            int value=Vocabulary.get(word);
-                           int newValue=value=1;
+                           int newValue=value+1;
                            Vocabulary.replace(word, newValue);
                        }
                        else
@@ -167,7 +168,7 @@ public class LogisticRegression
                        if(Vocabulary.containsKey(word))
                        {
                            int value=Vocabulary.get(word);
-                           int newValue=value=1;
+                           int newValue=value+1;
                            Vocabulary.replace(word, newValue);
                        }
                        else
@@ -284,16 +285,28 @@ public class LogisticRegression
     }
     public void UpdateWeights()
     {
-       for(String s: Vocabulary.keySet())
-       {
-           double w=w0+(learningRate*Vocabulary.get(s)*CalculateSpamDocumentProbabilityGivenword(s))-(lambda*w0*learningRate);
-           VocabularySpamWeights.put(s, w);
-       }
-       for(String s: Vocabulary.keySet())
-       {
-           double w=w0+(learningRate*Vocabulary.get(s)*CalculateHamDocumentProbabilityGivenword(s))-(lambda*w0*learningRate);
-           VocabularyHamWeights.put(s, w);
-       } 
+        double tempW;
+        for(int i=0;i<500;i++)
+        {
+            for(String s: Vocabulary.keySet())
+            {
+                if(VocabularySpamWeights.get(s)==null)
+                    tempW=w0;
+                else
+                    tempW=VocabularySpamWeights.get(s);
+                double w=tempW+(learningRate*Vocabulary.get(s)*CalculateSpamDocumentProbabilityGivenword(s))-(lambda*tempW*learningRate);
+                VocabularySpamWeights.put(s, w);
+            }
+            for(String s: Vocabulary.keySet())
+            {
+                if(VocabularyHamWeights.get(s)==null)
+                    tempW=w0;
+                else
+                    tempW=VocabularyHamWeights.get(s);
+                double w=tempW+(learningRate*Vocabulary.get(s)*CalculateHamDocumentProbabilityGivenword(s))-(lambda*tempW*learningRate);
+                VocabularyHamWeights.put(s, w);
+            } 
+        }
         
     }
     
@@ -353,14 +366,16 @@ public class LogisticRegression
        
        Map<String,Integer> extractedTokensfromDoc = new HashMap<>();
        extractedTokensfromDoc=ExtractTokensFromDocument(path);
-       double spamScore=1.0;
-       double hamScore=1.0;
+       double spamScore=0.0;
+       double hamScore=0.0;
        //spam probability
        for(String s:extractedTokensfromDoc.keySet())
        {
            if(VocabularySpamProbabilities.get(s)!=null)
            {
-               spamScore=spamScore*extractedTokensfromDoc.get(s)*VocabularySpamProbabilities.get(s);
+               double exp=(double)Math.exp(w0+VocabularySpamProbabilities.get(s)*extractedTokensfromDoc.get(s));
+               spamScore=spamScore+(exp/(1+exp));
+              // spamScore=spamScore*extractedTokensfromDoc.get(s)*VocabularySpamProbabilities.get(s);
            }
        }
        //ham probability
@@ -368,7 +383,9 @@ public class LogisticRegression
        {
            if(VocabularyHamProbabilities.get(s)!=null)
            {
-               hamScore=hamScore*extractedTokensfromDoc.get(s)*VocabularyHamProbabilities.get(s);
+               double exp=(double)Math.exp(w0+VocabularyHamProbabilities.get(s)*extractedTokensfromDoc.get(s));
+               hamScore=hamScore+(exp/(1+exp));
+               //hamScore=hamScore*extractedTokensfromDoc.get(s)*VocabularyHamProbabilities.get(s);
            }
        }
        
@@ -407,15 +424,9 @@ public class LogisticRegression
                 
             }
         }
-        
-        //sCount = spamCount;
-        //hCount = hamCount;
         System.out.println("Spam Count ="+spamCount);
         System.out.println("Ham Count ="+hamCount);
-        //double acc = (double)spamCount/hamCount;
-        //System.out.println(acc*100);
-        
-    }
+     }
     public static void main(String args[])
     {
         LogisticRegression lr=new LogisticRegression();
@@ -428,7 +439,7 @@ public class LogisticRegression
         lr.spamDocuments=lr.ConstructDocumentVocabulary(lr.spamFolderPath);
         lr.hamDocuments=lr.ConstructDocumentVocabulary(lr.hamFolderPath);
         lr.InitializeWeights();
-        lr.CalculatePriorProbability();
+        //lr.CalculatePriorProbability();
         lr.UpdateWeights();
         lr.CalculateProbabilities();;
         lr.CalculateAccuracy(lr.spamTestFolderPath);

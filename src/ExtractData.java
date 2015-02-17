@@ -42,9 +42,10 @@ public class ExtractData
                     while(token.hasMoreTokens())
                     {
                        String word=token.nextToken().toLowerCase().trim();
-                       word=word.replaceAll("[^a-zA-Z]+","");
+                       /*if(word.length()==1)
+                        word=word.replaceAll("[^a-zA-Z]+","");
                        if(word.length()==0)
-                        continue;
+                        continue;*/
                        if(vocabulary.containsKey(word))
                        {
                            String value=vocabulary.get(word);

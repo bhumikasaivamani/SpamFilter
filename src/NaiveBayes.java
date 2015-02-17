@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -41,10 +40,99 @@ public class NaiveBayes
     
     public Map<String,String> ConstructVocabulary()
     {
-        Map<String,String> V = new HashMap<String,String>();
-        spamData.vocabulary.putAll(hamData.vocabulary);
-        V=spamData.vocabulary;
-        return V;
+        Map<String,String> vocabulary = new HashMap<String,String>();
+        /*spamData.vocabulary.putAll(hamData.vocabulary);
+        V=spamData.vocabulary;*/
+        
+        File spamfolder=new File(spamFolderPath);
+        File [] spamFiles=spamfolder.listFiles();
+        
+        Data spamdata =new Data();
+        spamdata.NumberOfFiles=spamFiles.length-1;
+        for(int i=0;i<spamFiles.length;i++)
+        {
+            if(spamFiles[i].getName().equals(".DS_Store"))
+                continue;
+            try
+            {
+                FileReader fileReader=new FileReader(spamFiles[i].getAbsolutePath());
+                BufferedReader br=new BufferedReader(fileReader);
+                String line=br.readLine();
+                while(line!=null)
+                {
+                    StringTokenizer token=new StringTokenizer(line," ");
+                    while(token.hasMoreTokens())
+                    {
+                       String word=token.nextToken().trim().toLowerCase();
+                       if(word.length()==1)
+                        word=word.replaceAll("[^a-zA-Z]+","");
+                       if(word.length()==0)
+                           continue;
+                       if(vocabulary.containsKey(word))
+                       {
+                           String value=vocabulary.get(word);
+                           int newValue=Integer.parseInt(value)+1;
+                           vocabulary.replace(word, Integer.toString(newValue));
+                       }
+                       else
+                       {
+                          vocabulary.put(word,"1");
+                       }
+                    } 
+                    line=br.readLine();
+                }
+            }
+            catch(Exception e)
+            {
+                
+            }
+          }
+        
+        //Ham Folder
+        File hamfolder=new File(hamFolderPath);
+        File [] hamFiles=hamfolder.listFiles();
+        
+        Data hamdata =new Data();
+        hamdata.NumberOfFiles=hamFiles.length-1;
+        for(int i=0;i<hamFiles.length;i++)
+        {
+            if(hamFiles[i].getName().equals(".DS_Store"))
+                continue;
+            try
+            {
+                FileReader fileReader=new FileReader(hamFiles[i].getAbsolutePath());
+                BufferedReader br=new BufferedReader(fileReader);
+                String line=br.readLine();
+                while(line!=null)
+                {
+                    StringTokenizer token=new StringTokenizer(line," ");
+                    while(token.hasMoreTokens())
+                    {
+                       String word=token.nextToken().trim().toLowerCase();
+                       if(word.length()==1)
+                        word=word.replaceAll("[^a-zA-Z]+","");
+                       if(word.length()==0)
+                           continue;
+                       if(vocabulary.containsKey(word))
+                       {
+                           String value=vocabulary.get(word);
+                           int newValue=Integer.parseInt(value)+1;
+                           vocabulary.replace(word, Integer.toString(newValue));
+                       }
+                       else
+                       {
+                          vocabulary.put(word,"1");
+                       }
+                    } 
+                    line=br.readLine();
+                }
+            }
+            catch(Exception e)
+            {
+                
+            }
+        }
+        return vocabulary;
     }
 
     public int CountTotalDocs()
@@ -113,29 +201,6 @@ public class NaiveBayes
         return trainedClassifier;   
      }
 
-    public String ConcatenateTextOfAllDocsinClass(String folderPath)
-    {
-        File folder=new File(folderPath);
-        File [] files=folder.listFiles();
-        String concatenatedString="";
-        for(int i=0;i<files.length;i++)
-        {
-            if(files[i].getName().equals(".DS_Store"))
-                continue;
-            try
-            {
-                FileReader fileReader=new FileReader(files[i].getAbsolutePath());
-                BufferedReader br=new BufferedReader(fileReader);
-                String line=br.readLine().toLowerCase().trim();
-                concatenatedString=concatenatedString.concat(line);
-            }
-            catch(Exception e)
-            {}
-          }
-        return concatenatedString;
-    }
-    
-    
     
     
     public Map<String,String> ExtractTokensFromDocument(String path)
@@ -152,7 +217,8 @@ public class NaiveBayes
                 while(token.hasMoreTokens())
                 {
                    String word=token.nextToken().toLowerCase().trim();
-                   word=word.replaceAll("[^a-zA-Z]+","");
+                   if(word.length()==1)
+                        word=word.replaceAll("[^a-zA-Z]+","");
                    if(word.length()==0)
                        continue;
                    if(extractedTokens.containsKey(word))
