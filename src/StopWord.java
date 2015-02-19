@@ -21,7 +21,7 @@ public class StopWord
         StopWord s=new StopWord();
         s.ConstructStopWordsArray();
     }
-    public void ConstructStopWordsArray()
+    public ArrayList<String> ConstructStopWordsArray()
     {
         stopWords=new ArrayList<>();
         try
@@ -40,7 +40,7 @@ public class StopWord
         {
             
         }
-        System.out.println("");
+        return stopWords;
     }
     
 }

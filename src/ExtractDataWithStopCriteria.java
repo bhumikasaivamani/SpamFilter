@@ -2,6 +2,7 @@
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -18,10 +19,13 @@ import java.util.StringTokenizer;
  *
  * @author bhumikasaivamani
  */
-public class ExtractData 
+public class ExtractDataWithStopCriteria 
 {
     public Data BuildVocabulary(String folderPath)
     {
+        StopWord s=new StopWord();
+        ArrayList<String> stpwrd=new ArrayList<>();
+        stpwrd=s.ConstructStopWordsArray();
         File folder=new File(folderPath);
         File [] files=folder.listFiles();
         Map<String,String> vocabulary = new HashMap<String,String>();
@@ -31,6 +35,7 @@ public class ExtractData
         {
             if(files[i].getName().equals(".DS_Store"))
                 continue;
+            
             try
             {
                 FileReader fileReader=new FileReader(files[i].getAbsolutePath());
@@ -45,6 +50,8 @@ public class ExtractData
                        if(word.length()==1)
                         word=word.replaceAll("[^a-zA-Z]+","");
                        if(word.length()==0)
+                        continue;
+                       if(stpwrd.contains(word))
                         continue;
                        if(vocabulary.containsKey(word))
                        {

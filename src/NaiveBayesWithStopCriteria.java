@@ -18,7 +18,7 @@ import java.util.StringTokenizer;
  *
  * @author bhumikasaivamani
  */
-public class NaiveBayes 
+public class NaiveBayesWithStopCriteria 
 {
     ExtractData dataExtraction;
     String spamFolderPath;
@@ -32,7 +32,7 @@ public class NaiveBayes
     Data spamData;
     Data hamData;
     Map<String,String> totalV;
-    public NaiveBayes()
+    public NaiveBayesWithStopCriteria()
     {
         s=new StopWord();
         stopwrd=s.ConstructStopWordsArray();
@@ -71,6 +71,8 @@ public class NaiveBayes
                        if(word.length()==1)
                         word=word.replaceAll("[^a-zA-Z]+","");
                        if(word.length()==0)
+                           continue;
+                       if(stopwrd.contains(word))
                            continue;
                        if(vocabulary.containsKey(word))
                        {
@@ -116,6 +118,8 @@ public class NaiveBayes
                        if(word.length()==1)
                         word=word.replaceAll("[^a-zA-Z]+","");
                        if(word.length()==0)
+                           continue;
+                       if(stopwrd.contains(word))
                            continue;
                        if(vocabulary.containsKey(word))
                        {
@@ -225,6 +229,8 @@ public class NaiveBayes
                         word=word.replaceAll("[^a-zA-Z]+","");
                    if(word.length()==0)
                        continue;
+                   if(stopwrd.contains(word))
+                       continue;
                    if(extractedTokens.containsKey(word))
                    {
                        String value=extractedTokens.get(word);
@@ -321,7 +327,7 @@ public class NaiveBayes
     
     public static void main(String args[])
     {
-        NaiveBayes n=new NaiveBayes();
+        NaiveBayesWithStopCriteria n=new NaiveBayesWithStopCriteria();
         ArrayList<Classifier> C=new ArrayList<>();
         n.spamFolderPath="/Users/bhumikasaivamani/spam";
         n.hamFolderPath="/Users/bhumikasaivamani/ham";

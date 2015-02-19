@@ -19,7 +19,7 @@ import java.util.StringTokenizer;
  */
 public class LogisticRegression 
 {
-    Map<String,Integer> Vocabulary;
+   /* Map<String,Integer> Vocabulary;
     Map<String,Double> VocabularySpamWeights;
     Map<String,Double> VocabularyHamWeights;
     Map<String,Double> VocabularySpamProbabilities;
@@ -209,40 +209,13 @@ public class LogisticRegression
             hamDocuments.get(i).weight=hamW;
         }
     }
-    
-    
-    /*public double CalculateProbability()
-    {
-        Map<String,Double> spamP=new HashMap<>();
-        Map<String,Double> hamP=new HashMap<>();
-        double prob=0.0;
-        
-        for(int i=0;i<spamDocuments.size();i++)
-        {
-            for(String s:spamDocuments.get(i).v.keySet())
-            {
-                double z=1.0/(1+Math.exp((-1*spamDocuments.get(i).weight.get(s)*spamDocuments.get(i).v.get(s))));
-                spamDocuments.get(i).probabilities.put(s,z);
-            }
-            spamDocuments.get(i).probabilities=spamP;
-        }
-        
-        for(int i=0;i<hamDocuments.size();i++)
-        {
-            for(String s:hamDocuments.get(i).v.keySet())
-            {
-                double z=1.0/(1+Math.exp((-1*hamDocuments.get(i).weight.get(s)*hamDocuments.get(i).v.get(s))));
-                hamDocuments.get(i).probabilities.put(s,z);
-            }
-            hamDocuments.get(i).probabilities=hamP;
-        }
-        return prob;
-    }*/
+
     
     public void CalculatePriorProbability()
     {
         for(int i=0;i<spamDocuments.size();i++)
         {
+            spamDocuments.get(i).priorProb=0.0;
             for(String s:spamDocuments.get(i).v.keySet())
             {
                 spamDocuments.get(i).priorProb+=spamDocuments.get(i).weight.get(s)*spamDocuments.get(i).v.get(s);
@@ -251,6 +224,7 @@ public class LogisticRegression
         
         for(int i=0;i<hamDocuments.size();i++)
         {
+            hamDocuments.get(i).priorProb=0.0;
             for(String s:hamDocuments.get(i).v.keySet())
             {
                 hamDocuments.get(i).priorProb+=hamDocuments.get(i).weight.get(s)*hamDocuments.get(i).v.get(s);
@@ -286,12 +260,14 @@ public class LogisticRegression
     public void UpdateWeights()
     {
         double tempW;
-        for(int i=0;i<500;i++)
+        for(int i=0;i<100;i++)
         {
+            //CalculatePriorProbability();
+            //CalculateProbabilities();
             for(String s: Vocabulary.keySet())
             {
                 if(VocabularySpamWeights.get(s)==null)
-                    tempW=w0;
+                    tempW=0.3;
                 else
                     tempW=VocabularySpamWeights.get(s);
                 double w=tempW+(learningRate*Vocabulary.get(s)*CalculateSpamDocumentProbabilityGivenword(s))-(lambda*tempW*learningRate);
@@ -300,7 +276,7 @@ public class LogisticRegression
             for(String s: Vocabulary.keySet())
             {
                 if(VocabularyHamWeights.get(s)==null)
-                    tempW=w0;
+                    tempW=0.3;
                 else
                     tempW=VocabularyHamWeights.get(s);
                 double w=tempW+(learningRate*Vocabulary.get(s)*CalculateHamDocumentProbabilityGivenword(s))-(lambda*tempW*learningRate);
@@ -319,7 +295,7 @@ public class LogisticRegression
         }
         for(String s:VocabularyHamWeights.keySet())
         {
-            double p=1.0/(1+Math.exp(-1*VocabularyHamWeights.get(s)));
+            double p=(Math.exp(-1*VocabularyHamWeights.get(s)))/(1+Math.exp(-1*VocabularyHamWeights.get(s)));
             VocabularyHamProbabilities.put(s, p);
         }
         
@@ -374,7 +350,7 @@ public class LogisticRegression
            if(VocabularySpamProbabilities.get(s)!=null)
            {
                double exp=(double)Math.exp(w0+VocabularySpamProbabilities.get(s)*extractedTokensfromDoc.get(s));
-               spamScore=spamScore+(exp/(1+exp));
+               spamScore=spamScore+(1.0/(1+exp));
               // spamScore=spamScore*extractedTokensfromDoc.get(s)*VocabularySpamProbabilities.get(s);
            }
        }
@@ -436,15 +412,17 @@ public class LogisticRegression
         lr.hamTestFolderPath="/Users/bhumikasaivamani/test/ham";
         
         lr.ConstructVocabulary();
+        
         lr.spamDocuments=lr.ConstructDocumentVocabulary(lr.spamFolderPath);
         lr.hamDocuments=lr.ConstructDocumentVocabulary(lr.hamFolderPath);
         lr.InitializeWeights();
-        //lr.CalculatePriorProbability();
+        
+        lr.CalculatePriorProbability();
         lr.UpdateWeights();
-        lr.CalculateProbabilities();;
+        //lr.CalculateProbabilities();
         lr.CalculateAccuracy(lr.spamTestFolderPath);
         lr.CalculateAccuracy(lr.hamTestFolderPath);
         System.out.println(""); 
-    }
+    }*/
     
 }
