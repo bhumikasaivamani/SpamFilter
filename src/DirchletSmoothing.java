@@ -8,11 +8,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
 /**
  *
  * @author bhumikasaivamani
  */
-public class NaiveBayes 
+public class DirchletSmoothing 
 {
     ExtractData dataExtraction;
     String spamFolderPath;
@@ -20,22 +26,31 @@ public class NaiveBayes
     String spamTestFolderPath;
     String hamTestFolderPath;
     int sCount, hCount ;
+    StopWord s;
+    ArrayList<String> stopwrd;
+    double mu;
+    String stopWordTextPath;
+    
     Data spamData;
     Data hamData;
     Map<String,String> totalV;
-    
-    public NaiveBayes()
-    { 
-        totalV = new HashMap<String,String>();
+    public DirchletSmoothing()
+    {
+        s=new StopWord();
+        stopwrd=s.ConstructStopWordsArray(stopWordTextPath);
         totalV = new HashMap<String,String>();
         dataExtraction=new ExtractData();
         spamData=new Data();
         hamData=new Data();
+        mu=0.95;
     }
     
     public Map<String,String> ConstructVocabulary()
     {
         Map<String,String> vocabulary = new HashMap<String,String>();
+        /*spamData.vocabulary.putAll(hamData.vocabulary);
+        V=spamData.vocabulary;*/
+        
         File spamfolder=new File(spamFolderPath);
         File [] spamFiles=spamfolder.listFiles();
         
@@ -60,6 +75,8 @@ public class NaiveBayes
                         word=word.replaceAll("[^a-zA-Z]+","");
                        if(word.length()==0)
                            continue;
+                       if(stopwrd.contains(word))
+                           continue;
                        if(vocabulary.containsKey(word))
                        {
                            String value=vocabulary.get(word);
@@ -75,12 +92,15 @@ public class NaiveBayes
                 }
             }
             catch(Exception e)
-            {}
+            {
+                
+            }
           }
         
         //Ham Folder
         File hamfolder=new File(hamFolderPath);
         File [] hamFiles=hamfolder.listFiles();
+        
         Data hamdata =new Data();
         hamdata.NumberOfFiles=hamFiles.length-1;
         for(int i=0;i<hamFiles.length;i++)
@@ -102,6 +122,8 @@ public class NaiveBayes
                         word=word.replaceAll("[^a-zA-Z]+","");
                        if(word.length()==0)
                            continue;
+                       if(stopwrd.contains(word))
+                           continue;
                        if(vocabulary.containsKey(word))
                        {
                            String value=vocabulary.get(word);
@@ -117,39 +139,41 @@ public class NaiveBayes
                 }
             }
             catch(Exception e)
-            {}
+            {
+                
+            }
         }
         return vocabulary;
     }
 
-    /**
-     * Method to COunt total Number of Documents in which data is trained
-     * @return 
-     */
     public int CountTotalDocs()
     {
         int N=spamData.NumberOfFiles+hamData.NumberOfFiles;
         return N;
     }
-    
-    /**
-     * Function that count Total Number of words given a Hash Map of word and count keyValue Pair
-     * @param m
-     * @return 
-     */
     public int FindTotalWords(Map<String,String> m)
     {
         int count=0;
         for(String key : m.keySet())
+        {
             count += Integer.parseInt(m.get(key));
+        }
         return count;
+        
     }
-   
-    /**
-     * Function to Train Data
-     * @param C
-     * @return 
-     */
+    
+    public double FindValueGivenKey(Map<String,String> map,String s)
+    {
+       double value=0.0; 
+       Set mapWords=map.entrySet();
+       
+       if(map.get(s)!=null)
+       {
+           return Double.parseDouble(map.get(s));
+       }
+       
+       return value;
+    }
     public ArrayList<Classifier> TrainMultinomialNB(ArrayList<Classifier> C)
     {
         ArrayList<Classifier> trainedClassifier=new ArrayList<>();
@@ -166,6 +190,7 @@ public class NaiveBayes
             int Nc=C.get(i).classData.NumberOfFiles;
             double Priorc=(double)Nc/(double)N;
             c.prior=Priorc;
+            
             Map<String,String> textc = new HashMap<String,String>();
             textc=C.get(i).classData.vocabulary;
             double Tct = 0.0;
@@ -177,20 +202,27 @@ public class NaiveBayes
                     Tct = 0.0;
                 
                 //Find conditional probability
-                double cp = (Tct + 1)/(FindTotalWords(textc)+totalV.size());
+                //double cp = (Tct + 1)/(FindTotalWords(textc)+totalV.size());
+                //dir
+                double newval=(double)(mu*(Double.parseDouble(totalV.get(t))/totalV.size()));
+                double cp=(Tct+newval)/(FindTotalWords(textc)+mu);
+                /*double max;
+                if(Tct-0.6>0.0)
+                    max=Tct;
+                else max=0.0;
+                double temp=(0.6)*(c.classData.vocabulary.size())*(Double.parseDouble(totalV.get(t))/totalV.size());
+                double cp=(double)((max+temp)/(totalV.size()));*/
                 condProb.put(t, Double.toString(cp));
             }
             c.condProb = condProb;
             trainedClassifier.add(c);
+            
         }
         return trainedClassifier;   
      }
 
-    /**
-     * Function to extract words given the document
-     * @param path
-     * @return 
-     */
+    
+    
     public Map<String,String> ExtractTokensFromDocument(String path)
     {
         Map<String,String> extractedTokens = new HashMap<String,String>();
@@ -209,6 +241,8 @@ public class NaiveBayes
                         word=word.replaceAll("[^a-zA-Z]+","");
                    if(word.length()==0)
                        continue;
+                   if(stopwrd.contains(word))
+                       continue;
                    if(extractedTokens.containsKey(word))
                    {
                        String value=extractedTokens.get(word);
@@ -224,15 +258,12 @@ public class NaiveBayes
             }
         }
         catch(Exception e)
-        {}
+        {
+
+        }
         return extractedTokens;
      }
     
-    /**
-     * Function to calculate Accuracy
-     * @param C
-     * @param Path 
-     */
     public void CalculateAccuracy(ArrayList<Classifier> C,String Path)
     {
         //spam folder
@@ -258,18 +289,20 @@ public class NaiveBayes
                 }
             }
             catch(Exception e)
-            {}
+            {
+                
+            }
         }
+        
         sCount = spamCount;
         hCount = hamCount;
+        //System.out.println("Spam Count ="+spamCount);
+        //System.out.println("Ham Count ="+hamCount);
+        //double acc = (double)spamCount/hamCount;
+        //System.out.println(acc*100);
+        
     }
     
-    /**
-     * Function to test Data given a document and return whether the document is of spam or ham class
-     * @param C
-     * @param d
-     * @return 
-     */
     public String ApplyMultiNomialNB(ArrayList<Classifier> C,String d)
     {
        String maxClass=""; 
@@ -279,16 +312,23 @@ public class NaiveBayes
        for(int i=0;i<C.size();i++)
        {
            double classScore=(double)Math.log(C.get(i).prior)/Math.log(2);
+           //double classScore=(double)Math.log(C.get(i).prior);
            for(String key : extractedTokensfromDoc.keySet()) {
                String val = C.get(i).condProb.get(key);
-               double cp;
+               double cp=0.0;
                if(val!=null)
+               {
                    cp = Double.parseDouble(val);
+               }
                else
-                   cp=(double)1/((FindTotalWords(C.get(i).classData.vocabulary)+totalV.size()));
-               
+               {
+                   
+                   cp=(double)1/((FindTotalWords(C.get(i).classData.vocabulary)));
+               }
                classScore += (double)(Math.log(cp)/Math.log(2));
+               
            }
+           
            if(classScore>maxScore)
            {
                maxScore=classScore;
@@ -300,13 +340,13 @@ public class NaiveBayes
     
     public static void main(String args[])
     {
-        NaiveBayes n=new NaiveBayes();
+        DirchletSmoothing n=new DirchletSmoothing();
         ArrayList<Classifier> C=new ArrayList<>();
-       
         n.spamFolderPath="/Users/bhumikasaivamani/spam";
         n.hamFolderPath="/Users/bhumikasaivamani/ham";
         n.spamTestFolderPath="/Users/bhumikasaivamani/test/spam";
         n.hamTestFolderPath="/Users/bhumikasaivamani/test/ham";
+        n.stopWordTextPath="/Users/bhumikasaivamani/stopWords.txt";
         
         n.spamData=n.dataExtraction.BuildVocabulary(n.spamFolderPath);
         n.hamData=n.dataExtraction.BuildVocabulary(n.hamFolderPath);
@@ -321,11 +361,10 @@ public class NaiveBayes
         hamClass.Name="ham";
         C.add(hamClass);
         
+        
         //Training
         ArrayList<Classifier> trainedC=new ArrayList<>();
         trainedC=n.TrainMultinomialNB(C);
-        
-        //Testing
         n.CalculateAccuracy(trainedC,n.spamTestFolderPath);
         double acc = Math.round(((double)n.sCount/(n.sCount+n.hCount)*100));
         System.out.println("Spam accuracy : "+(int)acc+"%");
@@ -333,5 +372,7 @@ public class NaiveBayes
         n.CalculateAccuracy(trainedC,n.hamTestFolderPath);
         acc = Math.round(((double)n.hCount/(n.sCount+n.hCount)*100));
         System.out.println("Ham accuracy : "+(int)acc+"%");
+        
     }
+    
 }

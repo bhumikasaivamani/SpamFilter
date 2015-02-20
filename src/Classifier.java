@@ -1,16 +1,11 @@
-
 import java.util.HashMap;
 import java.util.Map;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
- *
+ * 
  * @author bhumikasaivamani
+ * Class that stores data about different class of data (Ham and Spam)
+ * Each class has Data(vocabulary) and conditional probabilities associated with that class
  */
 public class Classifier 
 {
@@ -24,7 +19,6 @@ public class Classifier
     public Classifier()
     {
         classData=new Data();
-        condProb=new HashMap<String,String>();
+        condProb=new HashMap<String,String>(); 
     }
-    
 }

@@ -8,11 +8,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 
 /**
  *
@@ -20,7 +15,7 @@ import java.util.StringTokenizer;
  */
 public class NaiveBayesWithStopCriteria 
 {
-    ExtractData dataExtraction;
+    ExtractDataWithStopCriteria dataExtraction;
     String spamFolderPath;
     String hamFolderPath;
     String spamTestFolderPath;
@@ -28,6 +23,7 @@ public class NaiveBayesWithStopCriteria
     int sCount, hCount ;
     StopWord s;
     ArrayList<String> stopwrd;
+    String stopWordTextPath;
     
     Data spamData;
     Data hamData;
@@ -35,9 +31,8 @@ public class NaiveBayesWithStopCriteria
     public NaiveBayesWithStopCriteria()
     {
         s=new StopWord();
-        stopwrd=s.ConstructStopWordsArray();
         totalV = new HashMap<String,String>();
-        dataExtraction=new ExtractData();
+        dataExtraction=new ExtractDataWithStopCriteria();
         spamData=new Data();
         hamData=new Data();
     }
@@ -45,12 +40,8 @@ public class NaiveBayesWithStopCriteria
     public Map<String,String> ConstructVocabulary()
     {
         Map<String,String> vocabulary = new HashMap<String,String>();
-        /*spamData.vocabulary.putAll(hamData.vocabulary);
-        V=spamData.vocabulary;*/
-        
         File spamfolder=new File(spamFolderPath);
         File [] spamFiles=spamfolder.listFiles();
-        
         Data spamdata =new Data();
         spamdata.NumberOfFiles=spamFiles.length-1;
         for(int i=0;i<spamFiles.length;i++)
@@ -89,9 +80,7 @@ public class NaiveBayesWithStopCriteria
                 }
             }
             catch(Exception e)
-            {
-                
-            }
+            {}
           }
         
         //Ham Folder
@@ -136,9 +125,7 @@ public class NaiveBayesWithStopCriteria
                 }
             }
             catch(Exception e)
-            {
-                
-            }
+            {}
         }
         return vocabulary;
     }
@@ -159,18 +146,6 @@ public class NaiveBayesWithStopCriteria
         
     }
     
-    public double FindValueGivenKey(Map<String,String> map,String s)
-    {
-       double value=0.0; 
-       Set mapWords=map.entrySet();
-       
-       if(map.get(s)!=null)
-       {
-           return Double.parseDouble(map.get(s));
-       }
-       
-       return value;
-    }
     public ArrayList<Classifier> TrainMultinomialNB(ArrayList<Classifier> C)
     {
         ArrayList<Classifier> trainedClassifier=new ArrayList<>();
@@ -197,7 +172,6 @@ public class NaiveBayesWithStopCriteria
                     Tct = Double.parseDouble(val);
                 else
                     Tct = 0.0;
-                
                 //Find conditional probability
                 double cp = (Tct + 1)/(FindTotalWords(textc)+totalV.size());
                 condProb.put(t, Double.toString(cp));
@@ -209,8 +183,6 @@ public class NaiveBayesWithStopCriteria
         return trainedClassifier;   
      }
 
-    
-    
     public Map<String,String> ExtractTokensFromDocument(String path)
     {
         Map<String,String> extractedTokens = new HashMap<String,String>();
@@ -246,9 +218,7 @@ public class NaiveBayesWithStopCriteria
             }
         }
         catch(Exception e)
-        {
-
-        }
+        {}
         return extractedTokens;
      }
     
@@ -268,27 +238,15 @@ public class NaiveBayesWithStopCriteria
             {
                 String s=ApplyMultiNomialNB(C,files[i].getAbsolutePath());
                 if(s.equals("spam"))
-                {
-                    spamCount++;
-                }
+                  spamCount++;
                 else if(s.equals("ham"))
-                {
-                    hamCount++;
-                }
+                        hamCount++;
             }
             catch(Exception e)
-            {
-                
-            }
+            {}
         }
-        
         sCount = spamCount;
         hCount = hamCount;
-        //System.out.println("Spam Count ="+spamCount);
-        //System.out.println("Ham Count ="+hamCount);
-        //double acc = (double)spamCount/hamCount;
-        //System.out.println(acc*100);
-        
     }
     
     public String ApplyMultiNomialNB(ArrayList<Classifier> C,String d)
@@ -300,22 +258,16 @@ public class NaiveBayesWithStopCriteria
        for(int i=0;i<C.size();i++)
        {
            double classScore=(double)Math.log(C.get(i).prior)/Math.log(2);
-           //double classScore=(double)Math.log(C.get(i).prior);
-           for(String key : extractedTokensfromDoc.keySet()) {
+           for(String key : extractedTokensfromDoc.keySet()) 
+           {
                String val = C.get(i).condProb.get(key);
                double cp;
                if(val!=null)
-               {
-                   cp = Double.parseDouble(val);
-               }
+                    cp = Double.parseDouble(val);
                else
-               {
-                   cp=(double)1/((FindTotalWords(C.get(i).classData.vocabulary)+totalV.size()));
-               }
+                    cp=(double)1/((FindTotalWords(C.get(i).classData.vocabulary)+totalV.size()));
                classScore += (double)(Math.log(cp)/Math.log(2));
-               
            }
-           
            if(classScore>maxScore)
            {
                maxScore=classScore;
@@ -333,9 +285,11 @@ public class NaiveBayesWithStopCriteria
         n.hamFolderPath="/Users/bhumikasaivamani/ham";
         n.spamTestFolderPath="/Users/bhumikasaivamani/test/spam";
         n.hamTestFolderPath="/Users/bhumikasaivamani/test/ham";
+        n.stopWordTextPath="/Users/bhumikasaivamani/stopWords.txt";
+        n.stopwrd=n.s.ConstructStopWordsArray(n.stopWordTextPath);
         
-        n.spamData=n.dataExtraction.BuildVocabulary(n.spamFolderPath);
-        n.hamData=n.dataExtraction.BuildVocabulary(n.hamFolderPath);
+        n.spamData=n.dataExtraction.BuildVocabulary(n.spamFolderPath,n.stopWordTextPath);
+        n.hamData=n.dataExtraction.BuildVocabulary(n.hamFolderPath,n.stopWordTextPath);
         
         Classifier spamClass=new Classifier();
         spamClass.classData=n.spamData;
@@ -347,10 +301,11 @@ public class NaiveBayesWithStopCriteria
         hamClass.Name="ham";
         C.add(hamClass);
         
-        
         //Training
         ArrayList<Classifier> trainedC=new ArrayList<>();
         trainedC=n.TrainMultinomialNB(C);
+        
+        //Testing
         n.CalculateAccuracy(trainedC,n.spamTestFolderPath);
         double acc = Math.round(((double)n.sCount/(n.sCount+n.hCount)*100));
         System.out.println("Spam accuracy : "+(int)acc+"%");
@@ -358,7 +313,5 @@ public class NaiveBayesWithStopCriteria
         n.CalculateAccuracy(trainedC,n.hamTestFolderPath);
         acc = Math.round(((double)n.hCount/(n.sCount+n.hCount)*100));
         System.out.println("Ham accuracy : "+(int)acc+"%");
-        
     }
-    
 }

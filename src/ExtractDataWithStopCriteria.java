@@ -4,16 +4,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.StringTokenizer;
-
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 
 /**
  *
@@ -21,11 +13,11 @@ import java.util.StringTokenizer;
  */
 public class ExtractDataWithStopCriteria 
 {
-    public Data BuildVocabulary(String folderPath)
+    public Data BuildVocabulary(String folderPath, String path)
     {
         StopWord s=new StopWord();
         ArrayList<String> stpwrd=new ArrayList<>();
-        stpwrd=s.ConstructStopWordsArray();
+        stpwrd=s.ConstructStopWordsArray(path);
         File folder=new File(folderPath);
         File [] files=folder.listFiles();
         Map<String,String> vocabulary = new HashMap<String,String>();
@@ -35,7 +27,6 @@ public class ExtractDataWithStopCriteria
         {
             if(files[i].getName().equals(".DS_Store"))
                 continue;
-            
             try
             {
                 FileReader fileReader=new FileReader(files[i].getAbsolutePath());
@@ -68,32 +59,9 @@ public class ExtractDataWithStopCriteria
                 }
             }
             catch(Exception e)
-            {
-                
-            }
+            {}
           }
-          /*Set setOfWords=vocabulary.entrySet();
-          Iterator iterator=setOfWords.iterator();
-          while(iterator.hasNext())
-          {
-            Map.Entry entry=(Map.Entry) iterator.next();
-                System.out.println(entry.getKey()+"\t"+entry.getValue());
-          }*/
           data.vocabulary=vocabulary;
           return data;
     }
-    
-    
-    public static void main(String args[])
-    {
-        ExtractData dataExtraction=new ExtractData();
-        String spamFolderPath="/Users/bhumikasaivamani/spam";
-        String hamFolderPath="/Users/bhumikasaivamani/ham";
-        Data spamData=new Data();
-        Data hamData=new Data();
-        spamData=dataExtraction.BuildVocabulary(spamFolderPath);
-        hamData=dataExtraction.BuildVocabulary(hamFolderPath);
-        System.out.println("");
-    }
-    
 }

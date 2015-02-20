@@ -16,17 +16,13 @@ import java.util.ArrayList;
 public class StopWord 
 {
     ArrayList<String> stopWords;
-    public static void main(String args [])
-    {
-        StopWord s=new StopWord();
-        s.ConstructStopWordsArray();
-    }
-    public ArrayList<String> ConstructStopWordsArray()
+    
+    public ArrayList<String> ConstructStopWordsArray(String path)
     {
         stopWords=new ArrayList<>();
         try
         {
-            FileReader reader=new FileReader("/Users/bhumikasaivamani/stopWords.txt");
+            FileReader reader=new FileReader(path);
             BufferedReader br=new BufferedReader(reader);
             String line=br.readLine();
             while(line!=null)
@@ -37,9 +33,7 @@ public class StopWord
             
         }
         catch(Exception e)
-        {
-            
-        }
+        {}
         return stopWords;
     }
     

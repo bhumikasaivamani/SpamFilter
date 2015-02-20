@@ -8,12 +8,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
  *
  * @author bhumikasaivamani
@@ -53,40 +47,15 @@ public class ExtractData
                            vocabulary.replace(word, newValue);
                        }
                        else
-                       {
                           vocabulary.put(word,"1");
-                       }
                     } 
                     line=br.readLine();
                 }
             }
             catch(Exception e)
-            {
-                
-            }
+            {}
           }
-          /*Set setOfWords=vocabulary.entrySet();
-          Iterator iterator=setOfWords.iterator();
-          while(iterator.hasNext())
-          {
-            Map.Entry entry=(Map.Entry) iterator.next();
-                System.out.println(entry.getKey()+"\t"+entry.getValue());
-          }*/
           data.vocabulary=vocabulary;
           return data;
     }
-    
-    
-    public static void main(String args[])
-    {
-        ExtractData dataExtraction=new ExtractData();
-        String spamFolderPath="/Users/bhumikasaivamani/spam";
-        String hamFolderPath="/Users/bhumikasaivamani/ham";
-        Data spamData=new Data();
-        Data hamData=new Data();
-        spamData=dataExtraction.BuildVocabulary(spamFolderPath);
-        hamData=dataExtraction.BuildVocabulary(hamFolderPath);
-        System.out.println("");
-    }
-    
 }
