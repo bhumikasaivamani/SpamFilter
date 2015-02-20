@@ -38,13 +38,14 @@ public class NaiveBayes
         Map<String,String> vocabulary = new HashMap<String,String>();
         File spamfolder=new File(spamFolderPath);
         File [] spamFiles=spamfolder.listFiles();
-        
+        int sc=0,hc=0;
         Data spamdata =new Data();
-        spamdata.NumberOfFiles=spamFiles.length-1;
+        //spamdata.NumberOfFiles=spamFiles.length-1;
         for(int i=0;i<spamFiles.length;i++)
         {
             if(spamFiles[i].getName().equals(".DS_Store"))
                 continue;
+            sc++;
             try
             {
                 FileReader fileReader=new FileReader(spamFiles[i].getAbsolutePath());
@@ -64,7 +65,7 @@ public class NaiveBayes
                        {
                            String value=vocabulary.get(word);
                            int newValue=Integer.parseInt(value)+1;
-                           vocabulary.replace(word, Integer.toString(newValue));
+                           vocabulary.put(word, Integer.toString(newValue));
                        }
                        else
                        {
@@ -77,16 +78,17 @@ public class NaiveBayes
             catch(Exception e)
             {}
           }
-        
+        spamdata.NumberOfFiles=sc;
         //Ham Folder
         File hamfolder=new File(hamFolderPath);
         File [] hamFiles=hamfolder.listFiles();
         Data hamdata =new Data();
-        hamdata.NumberOfFiles=hamFiles.length-1;
+        //hamdata.NumberOfFiles=hamFiles.length-1;
         for(int i=0;i<hamFiles.length;i++)
         {
             if(hamFiles[i].getName().equals(".DS_Store"))
                 continue;
+            hc++;
             try
             {
                 FileReader fileReader=new FileReader(hamFiles[i].getAbsolutePath());
@@ -106,7 +108,7 @@ public class NaiveBayes
                        {
                            String value=vocabulary.get(word);
                            int newValue=Integer.parseInt(value)+1;
-                           vocabulary.replace(word, Integer.toString(newValue));
+                           vocabulary.put(word, Integer.toString(newValue));
                        }
                        else
                        {
@@ -119,6 +121,7 @@ public class NaiveBayes
             catch(Exception e)
             {}
         }
+        hamdata.NumberOfFiles=hc;
         return vocabulary;
     }
 
@@ -213,7 +216,7 @@ public class NaiveBayes
                    {
                        String value=extractedTokens.get(word);
                        String newValue=Integer.toString(Integer.parseInt(value)+1);
-                       extractedTokens.replace(word, newValue);
+                       extractedTokens.put(word, newValue);
                    }
                    else
                    {
@@ -303,10 +306,15 @@ public class NaiveBayes
         NaiveBayes n=new NaiveBayes();
         ArrayList<Classifier> C=new ArrayList<>();
        
-        n.spamFolderPath="/Users/bhumikasaivamani/spam";
+        /*n.spamFolderPath="/Users/bhumikasaivamani/spam";
         n.hamFolderPath="/Users/bhumikasaivamani/ham";
         n.spamTestFolderPath="/Users/bhumikasaivamani/test/spam";
-        n.hamTestFolderPath="/Users/bhumikasaivamani/test/ham";
+        n.hamTestFolderPath="/Users/bhumikasaivamani/test/ham";*/
+        //System.out.println(args[0]);
+        n.spamFolderPath=args[0];
+        n.hamFolderPath=args[1];
+        n.spamTestFolderPath=args[2];
+        n.hamTestFolderPath=args[3];
         
         n.spamData=n.dataExtraction.BuildVocabulary(n.spamFolderPath);
         n.hamData=n.dataExtraction.BuildVocabulary(n.hamFolderPath);
@@ -328,10 +336,10 @@ public class NaiveBayes
         //Testing
         n.CalculateAccuracy(trainedC,n.spamTestFolderPath);
         double acc = Math.round(((double)n.sCount/(n.sCount+n.hCount)*100));
-        System.out.println("Spam accuracy : "+(int)acc+"%");
+        System.out.println("Spam accuracy : "+acc+"%");
         
         n.CalculateAccuracy(trainedC,n.hamTestFolderPath);
         acc = Math.round(((double)n.hCount/(n.sCount+n.hCount)*100));
-        System.out.println("Ham accuracy : "+(int)acc+"%");
+        System.out.println("Ham accuracy : "+acc+"%");
     }
 }

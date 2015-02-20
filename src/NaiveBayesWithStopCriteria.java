@@ -69,7 +69,7 @@ public class NaiveBayesWithStopCriteria
                        {
                            String value=vocabulary.get(word);
                            int newValue=Integer.parseInt(value)+1;
-                           vocabulary.replace(word, Integer.toString(newValue));
+                           vocabulary.put(word, Integer.toString(newValue));
                        }
                        else
                        {
@@ -114,7 +114,7 @@ public class NaiveBayesWithStopCriteria
                        {
                            String value=vocabulary.get(word);
                            int newValue=Integer.parseInt(value)+1;
-                           vocabulary.replace(word, Integer.toString(newValue));
+                           vocabulary.put(word, Integer.toString(newValue));
                        }
                        else
                        {
@@ -207,7 +207,7 @@ public class NaiveBayesWithStopCriteria
                    {
                        String value=extractedTokens.get(word);
                        String newValue=Integer.toString(Integer.parseInt(value)+1);
-                       extractedTokens.replace(word, newValue);
+                       extractedTokens.put(word, newValue);
                    }
                    else
                    {
@@ -281,11 +281,17 @@ public class NaiveBayesWithStopCriteria
     {
         NaiveBayesWithStopCriteria n=new NaiveBayesWithStopCriteria();
         ArrayList<Classifier> C=new ArrayList<>();
-        n.spamFolderPath="/Users/bhumikasaivamani/spam";
+       /* n.spamFolderPath="/Users/bhumikasaivamani/spam";
         n.hamFolderPath="/Users/bhumikasaivamani/ham";
         n.spamTestFolderPath="/Users/bhumikasaivamani/test/spam";
         n.hamTestFolderPath="/Users/bhumikasaivamani/test/ham";
-        n.stopWordTextPath="/Users/bhumikasaivamani/stopWords.txt";
+        n.stopWordTextPath="/Users/bhumikasaivamani/stopWords.txt";*/
+        
+        n.spamFolderPath=args[0];
+        n.hamFolderPath=args[1];
+        n.spamTestFolderPath=args[2];
+        n.hamTestFolderPath=args[3];
+        n.stopWordTextPath=args[4];
         n.stopwrd=n.s.ConstructStopWordsArray(n.stopWordTextPath);
         
         n.spamData=n.dataExtraction.BuildVocabulary(n.spamFolderPath,n.stopWordTextPath);

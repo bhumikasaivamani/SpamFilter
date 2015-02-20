@@ -16,8 +16,10 @@ public class ExtractData
 {
     public Data BuildVocabulary(String folderPath)
     {
+        //System.out.println(folderPath);
         File folder=new File(folderPath);
         File [] files=folder.listFiles();
+         //System.out.println(files[1].getName()+"**");
         Map<String,String> vocabulary = new HashMap<String,String>();
         Data data =new Data();
         data.NumberOfFiles=files.length-1;
@@ -44,7 +46,7 @@ public class ExtractData
                        {
                            String value=vocabulary.get(word);
                            String newValue=Integer.toString(Integer.parseInt(value)+1);
-                           vocabulary.replace(word, newValue);
+                           vocabulary.put(word, newValue);
                        }
                        else
                           vocabulary.put(word,"1");

@@ -25,6 +25,7 @@ public class LogisticRegressionWithStopWordsCriteria
     double learningRate;
     double lambda;
     double randomWeight;
+    int hardLimit;
     
     StopWord s;
     ArrayList<String> stopwrd;
@@ -42,8 +43,8 @@ public class LogisticRegressionWithStopWordsCriteria
        stopwrd=s.ConstructStopWordsArray(stopWordTextPath);
        
        w0=1.0;
-       learningRate=0.001;
-       lambda=0.5;
+       //learningRate=0.001;
+       //lambda=0.5;
     }
     
     public void ConstructVocabulary()
@@ -80,7 +81,7 @@ public class LogisticRegressionWithStopWordsCriteria
                        {
                            int value=Vocabulary.get(word);
                            int newValue=value+1;
-                           Vocabulary.replace(word, newValue);
+                           Vocabulary.put(word, newValue);
                        }
                        else
                        {
@@ -127,7 +128,7 @@ public class LogisticRegressionWithStopWordsCriteria
                        {
                            int value=Vocabulary.get(word);
                            int newValue=value+1;
-                           Vocabulary.replace(word, newValue);
+                           Vocabulary.put(word, newValue);
                        }
                        else
                        {
@@ -180,7 +181,7 @@ public class LogisticRegressionWithStopWordsCriteria
                    if(extractedTokens.containsKey(word))
                    {
                        int value=extractedTokens.get(word);
-                       extractedTokens.replace(word, value+1);
+                       extractedTokens.put(word, value+1);
                    }
                    else
                    {
@@ -246,13 +247,14 @@ public class LogisticRegressionWithStopWordsCriteria
     
     public void TrainLR()
     {
-        for(int i=0;i<80;i++) //hard limit
+        for(int i=0;i<hardLimit;i++) //hard limit
         {
             CalculateDocumentPriorProbability();
-            //spam
+            
             for(String s:Vocabulary.keySet())
             {
                 double sump=0.0;   
+                //spam
                 for(int j=0;j<spamDocs.size();j++)
                 {
                    if(spamDocs.get(j).v.containsKey(s))
@@ -265,7 +267,7 @@ public class LogisticRegressionWithStopWordsCriteria
                     sump=sump+(hamDocs.get(j).v.get(s)*(1-hamDocs.get(j).priorProb));
                 }
                 double weight=(double)(VocabularyWeights.get(s)+(learningRate*sump)-(learningRate*lambda*VocabularyWeights.get(s)));
-                VocabularyWeights.replace(s, weight);
+                VocabularyWeights.put(s, weight);
             }
         }
     }
@@ -325,11 +327,21 @@ public class LogisticRegressionWithStopWordsCriteria
     public static void main(String args[])
     {
         LogisticRegressionWithStopWordsCriteria lr=new LogisticRegressionWithStopWordsCriteria();
-        lr.spamFolderPath="/Users/bhumikasaivamani/spam";
+        /*lr.spamFolderPath="/Users/bhumikasaivamani/spam";
         lr.hamFolderPath="/Users/bhumikasaivamani/ham";
         lr.spamTestFolderPath="/Users/bhumikasaivamani/test/spam";
         lr.hamTestFolderPath="/Users/bhumikasaivamani/test/ham";
-        lr.stopWordTextPath="/Users/bhumikasaivamani/stopWords.txt";
+        lr.stopWordTextPath="/Users/bhumikasaivamani/stopWords.txt";*/
+        
+        lr.spamFolderPath=args[0];
+        lr.hamFolderPath=args[1];
+        lr.spamTestFolderPath=args[2];
+        lr.hamTestFolderPath=args[3];
+        lr.stopWordTextPath=args[4];
+        lr.lambda=Double.parseDouble(args[5]);
+        lr.learningRate=Double.parseDouble(args[6]);
+        lr.hardLimit=Integer.parseInt(args[7]);
+        
         lr.ConstructVocabulary();
         
         //Training

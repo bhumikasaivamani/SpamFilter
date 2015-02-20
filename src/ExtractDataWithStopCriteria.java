@@ -48,7 +48,7 @@ public class ExtractDataWithStopCriteria
                        {
                            String value=vocabulary.get(word);
                            String newValue=Integer.toString(Integer.parseInt(value)+1);
-                           vocabulary.replace(word, newValue);
+                           vocabulary.put(word, newValue);
                        }
                        else
                        {
