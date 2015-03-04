@@ -18,7 +18,7 @@ import java.util.StringTokenizer;
  *
  * @author bhumikasaivamani
  */
-public class PerceptronClassification 
+public class PerceptronClassificationWithStopWordCriteria 
 {
     Map<String,Integer> Vocabulary;
     Map<String,Double> VocabularyWeights;
@@ -26,6 +26,7 @@ public class PerceptronClassification
     public String hamFolderPath;
     public String spamTestFolderPath;
     public String hamTestFolderPath;
+    public String stopWordTextPath;
     ArrayList<DocumentVocabulary> spamDocs;
     ArrayList<DocumentVocabulary> hamDocs;
     public double w0;
@@ -34,7 +35,10 @@ public class PerceptronClassification
     int sCount, hCount;
     double randomWeight;
     
-    public PerceptronClassification()
+    StopWord s;
+    ArrayList<String> stopwrd;
+    
+    public PerceptronClassificationWithStopWordCriteria()
     {
         Vocabulary=new HashMap<>();
         VocabularyWeights=new HashMap<>();
@@ -44,6 +48,9 @@ public class PerceptronClassification
         w0=0.0;
         hardLimit=100;
         learningRate=0.001;
+        
+        s=new StopWord();
+        stopwrd=s.ConstructStopWordsArray(stopWordTextPath);
     }
     
     /**
@@ -66,6 +73,8 @@ public class PerceptronClassification
                    word=word.replaceAll("[^a-zA-Z]+","");
                    if(word.length()==0)
                        continue;
+                   if(stopwrd.contains(word))
+                           continue;
                    if(extractedTokens.containsKey(word))
                    {
                        int value=extractedTokens.get(word);
@@ -117,6 +126,8 @@ public class PerceptronClassification
                        word=word.replaceAll("[^a-zA-Z]+","");
                        if(word.length()==0)
                            continue;
+                       if(stopwrd.contains(word))
+                           continue;
                        if(Vocabulary.containsKey(word))
                        {
                            int value=Vocabulary.get(word);
@@ -161,6 +172,8 @@ public class PerceptronClassification
                        String word=token.nextToken().trim().toLowerCase();
                        word=word.replaceAll("[^a-zA-Z]+","");
                        if(word.length()==0)
+                           continue;
+                       if(stopwrd.contains(word))
                            continue;
                        if(Vocabulary.containsKey(word))
                        {
@@ -404,12 +417,13 @@ public class PerceptronClassification
     }
    public static void main(String args[])
    {
-        PerceptronClassification p=new PerceptronClassification();
+        PerceptronClassificationWithStopWordCriteria p=new PerceptronClassificationWithStopWordCriteria();
         
         p.spamFolderPath="/Users/bhumikasaivamani/spam";
         p.hamFolderPath="/Users/bhumikasaivamani/ham";
         p.spamTestFolderPath="/Users/bhumikasaivamani/test/spam";
         p.hamTestFolderPath="/Users/bhumikasaivamani/test/ham";
+        p.stopWordTextPath="/Users/bhumikasaivamani/stopWords.txt";
         
         p.ConstructVocabulary();
         p.InitializeVocabularyWeights();
